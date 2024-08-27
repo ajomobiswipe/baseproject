@@ -46,6 +46,9 @@ void main() {
     // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    // SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+    //     overlays: [SystemUiOverlay.bottom]);
     runApp(MainPage(
       storageService: storageService,
     ));

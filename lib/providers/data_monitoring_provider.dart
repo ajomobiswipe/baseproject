@@ -8,27 +8,43 @@ class DataMonitoringProvider with ChangeNotifier {
   final List<String> headers = [
     "Schemes",
     "Approved",
-    "Decline",
+    "Declined",
     "Reversal",
     "%"
   ];
   final List<String> headereTwo = [
     "Overall",
     "Approved",
-    "Decline",
+    "Declined",
     "Reversal",
     "%"
   ];
   final MonitoringService monitoringService = MonitoringService();
+  List<DashBoardModel> dashboardData = [];
 
-  List<dynamic> currentWeekData = [];
   Map<String, dynamic>? currentMonthData;
   Map<String, dynamic>? todayData;
-  final Map<String, String> requestModel = {
+  dynamic merchantOnboardData;
+  dynamic transactionDashBoardData;
+  Map<String, dynamic>? dashBoardData;
+  final Map<String, String> stayusReq = {
+    "acquirerId": "ADIBOMA0001",
+    "merchantId": "",
+    "terminalId": "",
+    "fromDate": "24-07-2024",
+    "toDate": "24-08-2024"
+  };
+  final Map<String, String> onboardingDashboardReq = {
     "appProductId": "6",
     "instId": "ADIBOMA0001",
-    "processDate": "2024-06-06",
-    "apiType": "3"
+    "processDate": "2024-08-26",
+    "apiType": "1"
+  };
+  final Map<String, String> transactionDashboardreq = {
+    "appProductId": "6",
+    "instId": "ADIBOMA0001",
+    "processDate": "2024-08-25",
+    "apiType": "2"
   };
   List<MonitoringTableModel> uiData = [];
   final List<ChartDataModel> chartDataModel = [
@@ -40,13 +56,38 @@ class DataMonitoringProvider with ChangeNotifier {
   Future<void> getDashboardData() async {
     final int month = DateTime.now().month;
     try {
-      final response = await monitoringService.getDashboardData(requestModel);
+      final response = await monitoringService.getDashboardData(stayusReq);
       final Map<String, dynamic> data = json.decode(response.body);
-      currentWeekData = data['data'][0]['weeklyTxnCount'];
-      todayData = data['data'][0]['todayTxnWiseCount'][0];
-      currentMonthData = data['data'][0]['monthlyTxnCount'][month - 1];
+
+      todayData = data['data'][0]['txnInfo'][0];
+      dashBoardData = data['data'][0]['applicationStatus'][0];
+      // print(dashBoardData!["serviceName"]);
 
       setDefaultValues();
+    } catch (error) {
+      print("Error fetching data: $error");
+    }
+  }
+
+  Future<void> getOnboardingDashboardData() async {
+    try {
+      final response = await monitoringService
+          .getOnboardingDashboardData(onboardingDashboardReq);
+      final Map<String, dynamic> data = json.decode(response.body);
+
+      merchantOnboardData = data['data'][0];
+    } catch (error) {
+      print("Error fetching data: $error");
+    }
+  }
+
+  Future<void> getTransactionDashboardData() async {
+    try {
+      final response = await monitoringService
+          .getTransactionDashboardData(transactionDashboardreq);
+      final Map<String, dynamic> data = json.decode(response.body);
+      transactionDashBoardData = data['data'][0];
+      print(data['data'][0]);
     } catch (error) {
       print("Error fetching data: $error");
     }
@@ -55,17 +96,38 @@ class DataMonitoringProvider with ChangeNotifier {
   void setDefaultValues() {
     if (todayData == null) return;
 
+    String cpuString = dashBoardData!["cpu"] ?? "0%";
+    double cpuPercentage = double.parse(cpuString.replaceAll('%', ''));
+
+    String memoryString = dashBoardData!["memory"] ?? "0GiB / 0GiB";
+
+// Split the memory string into used and total parts
+    List<String> memoryParts = memoryString.split(" / ");
+    double usedMemory = double.parse(memoryParts[0].replaceAll("GiB", ""));
+    double totalMemory = double.parse(memoryParts[1].replaceAll("GiB", ""));
+
+    dashboardData.add(DashBoardModel(
+        linecolor: Colors.cyan, title: "CPU", percentage: cpuPercentage / 100));
+    dashboardData.add(
+      DashBoardModel(
+          linecolor: Colors.teal,
+          title: "Memory",
+          percentage: usedMemory / totalMemory),
+    );
+    dashboardData.add(DashBoardModel(
+        linecolor: Colors.orange, title: "Storage", percentage: 0.56));
+
     uiData = [
       MonitoringTableModel(
         schemeName: "Visa",
-        approved: todayData!["visaApprovedCount"] ?? 0,
-        declined: todayData!["visaDeclinedCount"] ?? 0,
-        reversal: todayData!["visaReversalCount"] ?? 0,
+        approved: todayData!["visaSaleAprCnt"] ?? 0,
+        declined: todayData!["totNonAprVisaCnt"] ?? 0,
+        reversal: todayData!["visaRefundAprCnt"] ?? 0,
         percentage: (todayData!["visaApprovedCount"] ?? 0).toDouble(),
       ),
       MonitoringTableModel(
         schemeName: "Master",
-        approved: todayData!["mcrdApprovedCount"] ?? 0,
+        approved: todayData!["mcCrSaleAprCnt"] ?? 0,
         declined: todayData!["mcrdDeclinedCount"] ?? 0,
         reversal: todayData!["mcrdReversalCount"] ?? 0,
         percentage: (todayData!["mcrdApprovedCount"] ?? 0).toDouble(),
@@ -76,55 +138,56 @@ class DataMonitoringProvider with ChangeNotifier {
   }
 
   void changeMonitoringInfo({required int tabIndex}) {
-    switch (tabIndex) {
-      case 0:
-        setDefaultValues();
-        break;
-      case 1:
-        setWeeklyValues();
-        break;
-      case 2:
-        setMonthlyValues();
-        break;
-    }
+    // setDefaultValues();
+    // switch (tabIndex) {
+    //   case 0:
+    //     setDefaultValues();
+    //     break;
+    //   case 1:
+    //     setWeeklyValues();
+    //     break;
+    //   case 2:
+    //     setMonthlyValues();
+    //     break;
+    // }
   }
 
-  void setWeeklyValues() {
-    num visaApprovedCount = 0;
-    num visaDeclineCount = 0;
-    num visaReversalCount = 0;
-    num masterApprovedCount = 0;
-    num masterDeclineCount = 0;
-    num masterReversalCount = 0;
+  // void setWeeklyValues() {
+  //   num visaApprovedCount = 0;
+  //   num visaDeclineCount = 0;
+  //   num visaReversalCount = 0;
+  //   num masterApprovedCount = 0;
+  //   num masterDeclineCount = 0;
+  //   num masterReversalCount = 0;
 
-    for (var item in currentWeekData) {
-      visaApprovedCount += item["visaApprovedCount"] ?? 0;
-      visaDeclineCount += item["visaDeclinedCount"] ?? 0;
-      visaReversalCount += item["visaApprovedCountRefund"] ?? 0;
-      masterApprovedCount += item["mcrdApprovedCount"] ?? 0;
-      masterDeclineCount += item["mcrdDeclinedCount"] ?? 0;
-      masterReversalCount += item["mcrdApprovedCountRefund"] ?? 0;
-    }
+  //   for (var item in currentWeekData) {
+  //     visaApprovedCount += item["visaApprovedCount"] ?? 0;
+  //     visaDeclineCount += item["visaDeclinedCount"] ?? 0;
+  //     visaReversalCount += item["visaApprovedCountRefund"] ?? 0;
+  //     masterApprovedCount += item["mcrdApprovedCount"] ?? 0;
+  //     masterDeclineCount += item["mcrdDeclinedCount"] ?? 0;
+  //     masterReversalCount += item["mcrdApprovedCountRefund"] ?? 0;
+  //   }
 
-    uiData = [
-      MonitoringTableModel(
-        schemeName: "Visa",
-        approved: visaApprovedCount.toInt(),
-        declined: visaDeclineCount.toInt(),
-        reversal: visaReversalCount.toInt(),
-        percentage: visaApprovedCount.toDouble(),
-      ),
-      MonitoringTableModel(
-        schemeName: "Master",
-        approved: masterApprovedCount.toInt(),
-        declined: masterDeclineCount.toInt(),
-        reversal: masterReversalCount.toInt(),
-        percentage: masterApprovedCount.toDouble(),
-      ),
-    ];
+  //   uiData = [
+  //     MonitoringTableModel(
+  //       schemeName: "Visa",
+  //       approved: visaApprovedCount.toInt(),
+  //       declined: visaDeclineCount.toInt(),
+  //       reversal: visaReversalCount.toInt(),
+  //       percentage: visaApprovedCount.toDouble(),
+  //     ),
+  //     MonitoringTableModel(
+  //       schemeName: "Master",
+  //       approved: masterApprovedCount.toInt(),
+  //       declined: masterDeclineCount.toInt(),
+  //       reversal: masterReversalCount.toInt(),
+  //       percentage: masterApprovedCount.toDouble(),
+  //     ),
+  //   ];
 
-    notifyListeners();
-  }
+  //   notifyListeners();
+  // }
 
   void setMonthlyValues() {
     if (currentMonthData == null) return;
