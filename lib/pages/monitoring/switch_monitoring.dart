@@ -1,6 +1,7 @@
 import 'package:baseproject/gen/assets.gen.dart';
 import 'package:baseproject/pages/monitoring/onboarding_dashboard.dart';
 import 'package:baseproject/pages/monitoring/transaction_dashboard.dart';
+import 'package:baseproject/widgets/logout.dart';
 import 'package:baseproject/widgets/radialChart/radial_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -22,7 +23,7 @@ class _SwitchMonitoringState extends State<SwitchMonitoring>
   int currentIndex = 0;
   late DataMonitoringProvider dataMonitoringProvider;
   bool isDarkMode = false;
-
+  Logout _logout = Logout();
   @override
   void initState() {
     super.initState();
@@ -61,90 +62,48 @@ class _SwitchMonitoringState extends State<SwitchMonitoring>
 
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        // backgroundColor: Colors.white,
         appBar: AppBar(
+          actions: [
+            IconButton(
+                onPressed: () {
+                  _logout.bottomSheet(context);
+                },
+                icon: Icon(Icons.logout))
+          ],
           backgroundColor: Colors.blue,
           title: Text(
             getTitle(),
             style: TextStyle(color: Colors.white),
           ),
         ),
-        // appBar: PreferredSize(
-        //   preferredSize:
-        //       Size.fromHeight(MediaQuery.of(context).size.height / 4),
-        //   child: TabBar(
-        //     controller: _tabController,
-        //     tabs: const [
-        //       Tab(
-        //         icon: Icon(Icons.graphic_eq),
-        //         text: "Status",
-        //       ),
-        //       Tab(
-        //         icon: Icon(Icons.view_week_outlined),
-        //         text: "Week",
-        //       ),
-        //       Tab(
-        //         icon: Icon(Icons.calendar_month),
-        //         text: "Month",
-        //       ),
-        //       Tab(
-        //         icon: Icon(Icons.local_convenience_store_outlined),
-        //         text: "Custom",
-        //       ),
-        //     ],
-        //     onTap: (value) {
-        //       dataMonitoringProvider.changeMonitoringInfo(tabIndex: value);
-        //     },
-        //   ),
-        // ),
         body: getHomescreenItems(currentIndex),
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            // color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 20,
-                color: Colors.black.withOpacity(.1),
-              )
-            ],
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
-              child: GNav(
-                rippleColor: Colors.grey[300]!,
-                hoverColor: Colors.grey[100]!,
-                gap: 8,
-                activeColor: Colors.blue,
-                iconSize: 24,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                duration: Duration(milliseconds: 400),
-                tabBackgroundColor: Colors.grey[100]!,
-                color: Colors.grey,
-                tabs: [
-                  GButton(
-                    icon: Icons.dashboard,
-                    text: 'Status',
-                  ),
-                  GButton(
-                    icon: Icons.add_chart_rounded,
-                    text: 'Onboarding',
-                  ),
-                  GButton(
-                    icon: Icons.receipt_long,
-                    text: 'Transactions',
-                  ),
-                ],
-                selectedIndex: currentIndex,
-                onTabChange: (index) {
-                  setState(() {
-                    currentIndex = index;
-                  });
-                },
-              ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: currentIndex, // The currently selected index
+          onTap: (index) {
+            setState(() {
+              currentIndex = index;
+            });
+          },
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard),
+              label: 'Status',
             ),
-          ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add_chart_rounded),
+              label: 'Onboarding',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.receipt_long),
+              label: 'Transactions',
+            ),
+          ],
+          selectedItemColor: Colors.blue, // Color for the selected item
+          unselectedItemColor: Colors.grey, // Color for the unselected items
+          // Background color of the BottomNavigationBar
+          type: BottomNavigationBarType
+              .fixed, // Ensures the labels are always visible
         ),
       ),
     );
@@ -171,17 +130,6 @@ class _SwitchMonitoringState extends State<SwitchMonitoring>
     final screenHeight = MediaQuery.of(context).size.height;
     return Stack(
       children: [
-        Positioned(
-          bottom: 0,
-          child: Row(
-            children: [
-              Image.asset(
-                Assets.images.alliance.path,
-                height: 70,
-              ),
-            ],
-          ),
-        ),
         const SizedBox(height: 40),
         SizedBox(
           height: screenHeight,

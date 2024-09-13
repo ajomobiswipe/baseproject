@@ -40,7 +40,7 @@ class RadialChart extends StatelessWidget {
                       child: Text(
                         '${(percent * 100).toStringAsFixed(0)}%',
                         style: const TextStyle(
-                          color: textColor,
+                          // color: textColor,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -61,7 +61,7 @@ class RadialChart extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        color: textColor.withOpacity(0.5),
+                        //color: textColor.withOpacity(0.5),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
