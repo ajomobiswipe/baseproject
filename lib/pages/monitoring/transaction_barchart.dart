@@ -34,12 +34,12 @@ class _TranscationBarChartState extends State<TranscationBarChart> {
         children: [
           Text(
             widget.title,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
-          Container(
+          SizedBox(
             height: height * 0.25,
             child: BarChart(
               BarChartData(
@@ -127,10 +127,10 @@ class _TranscationBarChartState extends State<TranscationBarChart> {
                       },
                     ),
                   ),
-                  rightTitles: AxisTitles(
+                  rightTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
-                  topTitles: AxisTitles(
+                  topTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
                 ),

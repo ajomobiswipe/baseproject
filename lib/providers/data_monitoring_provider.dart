@@ -27,12 +27,17 @@ class DataMonitoringProvider with ChangeNotifier {
   dynamic merchantOnboardData;
   dynamic transactionDashBoardData;
   Map<String, dynamic>? dashBoardData;
-  final Map<String, String> stayusReq = {
-    "acquirerId": "ADIBOMA0001",
-    "merchantId": "",
-    "terminalId": "",
+  final Map<String, dynamic> stayusReq = {
     "fromDate": "24-07-2024",
-    "toDate": "24-08-2024"
+    "toDate": "27-07-2024",
+    "acquirerId": "ADIBOMA0001",
+    "merchantId": null,
+    "rrn": "",
+    "authCode": null,
+    "cardNo": null,
+    "responseCode": null,
+    "transactionType": "",
+    "terminalId": null
   };
   final Map<String, String> onboardingDashboardReq = {
     "appProductId": "6",
@@ -62,6 +67,8 @@ class DataMonitoringProvider with ChangeNotifier {
       todayData = data['data'][0]['txnInfo'][0];
       dashBoardData = data['data'][0]['applicationStatus'][0];
       // print(dashBoardData!["serviceName"]);
+      print(todayData);
+      print(dashBoardData);
 
       setDefaultValues();
     } catch (error) {
@@ -95,7 +102,7 @@ class DataMonitoringProvider with ChangeNotifier {
 
   void setDefaultValues() {
     if (todayData == null) return;
-
+    dashboardData = [];
     String cpuString = dashBoardData!["cpu"] ?? "0%";
     double cpuPercentage = double.parse(cpuString.replaceAll('%', ''));
 

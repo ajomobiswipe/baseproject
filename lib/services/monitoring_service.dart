@@ -4,9 +4,9 @@ import 'package:baseproject/services/connection.dart';
 class MonitoringService {
   getDashboardData(requestModel) async {
     Connection connection = Connection();
-    var url = EndPoints.baseSwitchMonitoring + EndPoints.dashBoardData;
+    var url = EndPoints.basedashboard + EndPoints.dashBoardData;
     print(url);
-    var response = await connection.post(url, requestModel);
+    var response = await connection.postWithOutToken(url, requestModel);
     return response;
   }
 
