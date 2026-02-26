@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:local_auth/local_auth.dart';
 
 import 'config.dart';
@@ -63,30 +62,31 @@ class Global {
   }
 
   static authenticate() async {
-    LocalAuthentication auth = LocalAuthentication();
-    try {
-      final bool didAuthenticate = await auth.authenticate(
-        localizedReason: 'Please verify your identity.',
-        options:
-            const AuthenticationOptions(stickyAuth: true, biometricOnly: true),
-      );
-      return didAuthenticate;
-    } on PlatformException catch (e) {
-      print(e.code);
-      if (e.code == auth_error.notEnrolled) {
-      } else if (e.code == auth_error.notAvailable) {
-      } else if (e.code == auth_error.lockedOut ||
-          e.code == auth_error.permanentlyLockedOut) {
-      } else {}
-      return null;
-    }
+    //   LocalAuthentication auth = LocalAuthentication();
+    //   try {
+    //     final bool didAuthenticate = await auth.authenticate(
+    //       localizedReason: 'Please verify your identity.',
+    //       options:
+    //           const AuthenticationOptions(stickyAuth: true, biometricOnly: true),
+    //     );
+    //     return didAuthenticate;
+    //   } on PlatformException catch (e) {
+    //     print(e.code);
+    //     if (e.code == auth_error.notEnrolled) {
+    //     } else if (e.code == auth_error.notAvailable) {
+    //     } else if (e.code == auth_error.lockedOut ||
+    //         e.code == auth_error.permanentlyLockedOut) {
+    //     } else {}
+    //     return null;
+    //   }
+    // }
   }
 }
 
-// Global function to get theme mode
-extension DarkMode on BuildContext {
-  bool get isDarkMode {
-    final brightness = MediaQuery.of(this).platformBrightness;
-    return brightness == Brightness.dark;
-  }
-}
+// // Global function to get theme mode
+// extension DarkMode on BuildContext {
+//   bool get isDarkMode {
+//     final brightness = MediaQuery.of(this).platformBrightness;
+//     return brightness == Brightness.dark;
+//   }
+// }

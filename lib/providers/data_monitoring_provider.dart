@@ -29,7 +29,7 @@ class DataMonitoringProvider with ChangeNotifier {
   Map<String, dynamic>? dashBoardData;
   final Map<String, dynamic> stayusReq = {
     "fromDate": "24-07-2024",
-    "toDate": "27-07-2024",
+    "toDate": "27-07-2026",
     "acquirerId": "ADIBOMA0001",
     "merchantId": null,
     "rrn": "",
@@ -41,13 +41,13 @@ class DataMonitoringProvider with ChangeNotifier {
   };
   final Map<String, String> onboardingDashboardReq = {
     "appProductId": "6",
-    "instId": "ADIBOMA0001",
+    "instId": "GDEAOMA0101",
     "processDate": "2024-08-26",
     "apiType": "1"
   };
   final Map<String, String> transactionDashboardreq = {
     "appProductId": "6",
-    "instId": "ADIBOMA0001",
+    "instId": "GDEAOMA0101",
     "processDate": "2024-08-25",
     "apiType": "2"
   };

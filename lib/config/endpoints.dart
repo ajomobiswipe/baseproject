@@ -2,7 +2,7 @@ class EndPoints {
   static const baseLogin = 'https://omasoftposqc.omaemirates.com:9097';
   static const basedashboard = 'http://172.29.100.221:9508';
   static const baseSwitchMonitoring =
-      'https://omasoftposqc.omaemirates.com:9512';
+      'https://softpos-mpoc.omaemirates.com:18084';
   static const loginAPI = "/NanoUMS/v1/login";
   static const baseApiPublic9097 =
       'https://omasoftposqc.omaemirates.com:9097/NanoUMS/v1/';

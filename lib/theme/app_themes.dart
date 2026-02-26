@@ -54,16 +54,16 @@ class AppThemes {
       // backgroundColor: isDark ? AppColors.blackLight : AppColors.gray,
       scaffoldBackgroundColor: isDark ? AppColors.blackLight : AppColors.gray,
       // cardColor: isDark ? AppColors.white.withOpacity(0) : AppColors.white,
-      cardTheme: CardTheme(
-        color: isDark ? AppColors.blackLight : AppColors.white,
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          side: BorderSide(
-              color: isDark ? Colors.grey : AppColors.white, width: 1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-      ),
+      // cardTheme: CardTheme(
+      //   color: isDark ? AppColors.blackLight : AppColors.white,
+      //   elevation: 5,
+      //   shape: RoundedRectangleBorder(
+      //     side: BorderSide(
+      //         color: isDark ? Colors.grey : AppColors.white, width: 1),
+      //     borderRadius: BorderRadius.circular(10),
+      //   ),
+      //   margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+      // ),
       dividerColor: isDark
           ? AppColors.white.withOpacity(0.2)
           : AppColors.black.withOpacity(0.1),
