@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:baseproject/services/connection.dart';
+import 'package:baseproject/services/monitoring_service.dart';
 import 'package:baseproject/storage/secure_storage.dart';
 import 'package:baseproject/widgets/app/alert_service.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +54,8 @@ void main() {
         DataMonitoringProvider dataMonitoringProvider =
             DataMonitoringProvider();
         dataMonitoringProvider.getDashboardData();
+        TokenManager tokenManager = TokenManager();
+        tokenManager.start(navigatorKey.currentContext!);
         // String token = boxStorage.getToken();
         // // var url = '${EndPoints.baseApiPublic}/NanoPay/Middleware/UiApi/getMerchantOnboardingInfo/$number';
         // var url = '${EndPoints.baseApiPublic9097}refreshToken/$token';
@@ -165,5 +168,34 @@ class MyHttpOverrides extends HttpOverrides {
     return super.createHttpClient(context)
       ..badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
+  }
+}
+
+class TokenManager {
+  static final TokenManager _instance = TokenManager._internal();
+
+  factory TokenManager() {
+    return _instance;
+  }
+
+  TokenManager._internal(); // private constructor
+
+  Timer? _timer;
+  MonitoringService merchantServices = MonitoringService();
+  void start(BuildContext context) {
+    _timer ??= Timer.periodic(Duration(seconds: 90), (_) {
+      merchantServices.refreshToken();
+      _refreshToken();
+    });
+  }
+
+  void stop() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  void _refreshToken() {
+    merchantServices.refreshToken();
+    // Add actual logic here
   }
 }

@@ -1,12 +1,18 @@
+import 'dart:convert';
+
 import 'package:baseproject/config/endpoints.dart';
+import 'package:baseproject/main.dart' as NavigationService;
 import 'package:baseproject/services/connection.dart';
+import 'package:baseproject/storage/secure_storage.dart';
+
+import '../config/Config.dart';
 
 class MonitoringService {
   getDashboardData(requestModel) async {
     Connection connection = Connection();
-    var url = EndPoints.basedashboard + EndPoints.dashBoardData;
+    var url = EndPoints.baseSwitchMonitoring + EndPoints.dashBoardData;
     print(url);
-    var response = await connection.postWithOutToken(url, requestModel);
+    var response = await connection.post(url, requestModel);
     return response;
   }
 
@@ -26,5 +32,34 @@ class MonitoringService {
     print(url);
     var response = await connection.post(url, requestModel);
     return response;
+  }
+
+  BoxStorage boxStorage = BoxStorage();
+  Future refreshToken() async {
+    Connection connection = Connection();
+    String token = boxStorage.getToken();
+    var url =
+        '${EndPoints.baseSwitchMonitoring}${EndPoints.refreshtoken}$token';
+
+    var response = await connection.get(
+      url,
+    );
+
+    var decodedData = jsonDecode(response.body);
+
+    if (response.statusCode == 401) {
+      NavigationService.navigatorKey.currentState
+          ?.pushReplacementNamed('login');
+
+      clearStorage();
+      return;
+    }
+
+    BoxStorage secureStorage = BoxStorage();
+    secureStorage.saveUserDetails(decodedData);
+
+    if (response.statusCode == 200) {
+      return decodedData;
+    }
   }
 }

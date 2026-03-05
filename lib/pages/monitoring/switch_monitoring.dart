@@ -1,4 +1,5 @@
 import 'package:baseproject/gen/assets.gen.dart';
+import 'package:baseproject/main.dart';
 import 'package:baseproject/pages/monitoring/onboarding_dashboard.dart';
 import 'package:baseproject/pages/monitoring/transaction_dashboard.dart';
 import 'package:baseproject/widgets/logout.dart';
@@ -32,9 +33,12 @@ class _SwitchMonitoringState extends State<SwitchMonitoring>
       dataMonitoringProvider =
           Provider.of<DataMonitoringProvider>(context, listen: false);
       //dataMonitoringProvider.setDefaultValues();
+
       dataMonitoringProvider.getDashboardData();
       dataMonitoringProvider.getOnboardingDashboardData();
       dataMonitoringProvider.getTransactionDashboardData();
+      TokenManager tokenManager = TokenManager();
+      tokenManager.start(navigatorKey.currentContext!);
     });
   }
 

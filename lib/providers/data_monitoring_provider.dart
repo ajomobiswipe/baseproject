@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:baseproject/services/monitoring_service.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../pages/monitoring/models/chart_data_model.dart';
 import '../pages/monitoring/models/table_model.dart';
 
@@ -28,8 +29,8 @@ class DataMonitoringProvider with ChangeNotifier {
   dynamic transactionDashBoardData;
   Map<String, dynamic>? dashBoardData;
   final Map<String, dynamic> stayusReq = {
-    "fromDate": "24-07-2024",
-    "toDate": "27-07-2026",
+    "fromDate": DateFormat("dd-MM-yyyy").format(DateTime.now()),
+    "toDate": DateFormat("dd-MM-yyyy").format(DateTime.now()),
     "acquirerId": "ADIBOMA0001",
     "merchantId": null,
     "rrn": "",
@@ -65,7 +66,7 @@ class DataMonitoringProvider with ChangeNotifier {
       final Map<String, dynamic> data = json.decode(response.body);
 
       todayData = data['data'][0]['txnInfo'][0];
-      dashBoardData = data['data'][0]['applicationStatus'][0];
+      dashBoardData = data['data'][0]['applicationStatus'];
       // print(dashBoardData!["serviceName"]);
       print(todayData);
       print(dashBoardData);
