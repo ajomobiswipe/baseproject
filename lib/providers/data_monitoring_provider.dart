@@ -42,13 +42,13 @@ class DataMonitoringProvider with ChangeNotifier {
   final Map<String, String> onboardingDashboardReq = {
     "appProductId": "6",
     "instId": "GDEAOMA0101",
-    "processDate": "2024-08-26",
+    "processDate": "",
     "apiType": "1"
   };
   final Map<String, String> transactionDashboardreq = {
     "appProductId": "6",
     "instId": "GDEAOMA0101",
-    "processDate": "2024-08-25",
+    "processDate": "",
     "apiType": "2"
   };
   List<MonitoringTableModel> uiData = [];
