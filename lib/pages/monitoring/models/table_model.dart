@@ -17,9 +17,16 @@ class MonitoringTableModel {
 }
 
 class DashBoardModel {
-  final String title;
-  final double percentage;
-  final Color linecolor;
+  final String serviceName;
+  final String Status;
+  final double cpuPercentage;
+  final double memmoryPercentage;
+  final String memmoryStatus;
+
   DashBoardModel(
-      {required this.linecolor, required this.title, required this.percentage});
+      {required this.serviceName,
+      required this.Status,
+      required this.cpuPercentage,
+      required this.memmoryStatus,
+      required this.memmoryPercentage});
 }

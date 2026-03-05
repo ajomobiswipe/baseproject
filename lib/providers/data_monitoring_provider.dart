@@ -21,13 +21,13 @@ class DataMonitoringProvider with ChangeNotifier {
     "%"
   ];
   final MonitoringService monitoringService = MonitoringService();
-  List<DashBoardModel> dashboardData = [];
+  List<DashBoardModel> dashboardDataList = [];
 
   Map<String, dynamic>? currentMonthData;
   Map<String, dynamic>? todayData;
   dynamic merchantOnboardData;
   dynamic transactionDashBoardData;
-  Map<String, dynamic>? dashBoardData;
+  List<dynamic> dashBoardData = [];
   final Map<String, dynamic> stayusReq = {
     "fromDate": DateFormat("dd-MM-yyyy").format(DateTime.now()),
     "toDate": DateFormat("dd-MM-yyyy").format(DateTime.now()),
@@ -43,13 +43,13 @@ class DataMonitoringProvider with ChangeNotifier {
   final Map<String, String> onboardingDashboardReq = {
     "appProductId": "6",
     "instId": "GDEAOMA0101",
-    "processDate": "",
+    "processDate": DateFormat("dd-MM-yyyy").format(DateTime.now()),
     "apiType": "1"
   };
   final Map<String, String> transactionDashboardreq = {
     "appProductId": "6",
     "instId": "GDEAOMA0101",
-    "processDate": "",
+    "processDate": DateFormat("dd-MM-yyyy").format(DateTime.now()),
     "apiType": "2"
   };
   List<MonitoringTableModel> uiData = [];
@@ -103,27 +103,30 @@ class DataMonitoringProvider with ChangeNotifier {
 
   void setDefaultValues() {
     if (todayData == null) return;
-    dashboardData = [];
-    String cpuString = dashBoardData!["cpu"] ?? "0%";
-    double cpuPercentage = double.parse(cpuString.replaceAll('%', ''));
+    dashboardDataList = [];
 
-    String memoryString = dashBoardData!["memory"] ?? "0GiB / 0GiB";
+    for (var service in dashBoardData) {
+      String serviceName = service["serviceName"] ?? "Unknown Service";
+      String cpuString = service["cpu"] ?? "0%";
+      double cpuPercentage = double.parse(cpuString.replaceAll('%', ''));
+
+      String memoryString = service["memory"] ?? "0GiB / 0GiB";
+      String serviceStatus = service["status"] ?? "Unknown";
 
 // Split the memory string into used and total parts
-    List<String> memoryParts = memoryString.split(" / ");
-    double usedMemory = double.parse(memoryParts[0].replaceAll("GiB", ""));
-    double totalMemory = double.parse(memoryParts[1].replaceAll("GiB", ""));
+      List<String> memoryParts = memoryString.split('/');
 
-    dashboardData.add(DashBoardModel(
-        linecolor: Colors.cyan, title: "CPU", percentage: cpuPercentage / 100));
-    dashboardData.add(
-      DashBoardModel(
-          linecolor: Colors.teal,
-          title: "Memory",
-          percentage: usedMemory / totalMemory),
-    );
-    dashboardData.add(DashBoardModel(
-        linecolor: Colors.orange, title: "Storage", percentage: 0.56));
+      double usedMemory = parseMemory(memoryParts[0].trim());
+      double totalMemory = parseMemory(memoryParts[1].trim());
+      double memoryPercentage =
+          totalMemory > 0 ? usedMemory / totalMemory : 0.0;
+      dashboardDataList.add(DashBoardModel(
+          serviceName: serviceName,
+          cpuPercentage: cpuPercentage / 100,
+          Status: serviceStatus,
+          memmoryPercentage: memoryPercentage,
+          memmoryStatus: memoryString));
+    }
 
     uiData = [
       MonitoringTableModel(
@@ -143,6 +146,15 @@ class DataMonitoringProvider with ChangeNotifier {
     ];
 
     notifyListeners();
+  }
+
+  double parseMemory(String value) {
+    if (value.contains("MiB")) {
+      return double.parse(value.replaceAll("MiB", "")) / 1024;
+    } else if (value.contains("GiB")) {
+      return double.parse(value.replaceAll("GiB", ""));
+    }
+    return 0;
   }
 
   void changeMonitoringInfo({required int tabIndex}) {

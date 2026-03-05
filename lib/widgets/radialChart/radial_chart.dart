@@ -4,74 +4,59 @@ import 'package:flutter/material.dart';
 
 class RadialChart extends StatelessWidget {
   final String title;
+  final String subtitle;
   final Color lineColor;
-  final double percent; // Added parameter to make it more flexible
+  final double percent;
 
   const RadialChart({
-    Key? key,
+    super.key,
     required this.title,
+    required this.subtitle,
+    required this.percent,
     this.lineColor = Colors.blueAccent,
-    this.percent = 0.7, // Default value
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        var chartSize =
-            constraints.maxWidth * 0.6; // Adjusted for grid item size
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: chartSize,
-                  width: chartSize,
-                  child: CustomPaint(
-                    foregroundPainter: RadialPainter(
-                      bgColor: textColor.withOpacity(0.1),
-                      lineColor: lineColor,
-                      percent: percent,
-                      width: 8.0,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${(percent * 100).toStringAsFixed(0)}%',
-                        style: const TextStyle(
-                          // color: textColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
+    return Column(
+      children: [
+        SizedBox(
+          height: 80,
+          width: 80,
+          child: CustomPaint(
+            foregroundPainter: RadialPainter(
+              bgColor: Colors.grey.withOpacity(0.15),
+              lineColor: lineColor,
+              percent: percent.clamp(0, 1),
+              width: 7,
+            ),
+            child: Center(
+              child: Text(
+                "${(percent * 100).toStringAsFixed(0)}%",
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 8), // Space between chart and text
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.circle,
-                      color: lineColor,
-                      size: 10,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      title,
-                      style: TextStyle(
-                        //color: textColor.withOpacity(0.5),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
-        );
-      },
+        ),
+        const SizedBox(height: 8),
+        Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
+        ),
+        Text(
+          subtitle,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade600,
+          ),
+        )
+      ],
     );
   }
 }

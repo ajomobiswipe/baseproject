@@ -4,6 +4,7 @@ import 'package:baseproject/pages/monitoring/onboarding_dashboard.dart';
 import 'package:baseproject/pages/monitoring/transaction_dashboard.dart';
 import 'package:baseproject/widgets/logout.dart';
 import 'package:baseproject/widgets/radialChart/radial_chart.dart';
+import 'package:baseproject/widgets/trns_summary_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/widgets.dart';
@@ -71,9 +72,14 @@ class _SwitchMonitoringState extends State<SwitchMonitoring>
           actions: [
             IconButton(
                 onPressed: () {
+                  dataMonitoringProvider.getDashboardData();
+                },
+                icon: Icon(Icons.refresh)),
+            IconButton(
+                onPressed: () {
                   _logout.bottomSheet(context);
                 },
-                icon: Icon(Icons.logout))
+                icon: Icon(Icons.logout)),
           ],
           backgroundColor: Colors.blue,
           title: Text(
@@ -140,122 +146,76 @@ class _SwitchMonitoringState extends State<SwitchMonitoring>
           width: screenWidth,
           child: ListView(
             children: [
+              commonTable(),
               const SizedBox(height: 40),
               Consumer<DataMonitoringProvider>(
                   builder: (context, dataProvider, child) {
-                return GridView.builder(
-                  itemCount: dataProvider.dashboardData.length,
+                return ListView.builder(
+                  itemCount: dataProvider.dashboardDataList.length,
                   padding: const EdgeInsets.all(16.0),
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 16.0,
-                    mainAxisSpacing: 16.0,
-                    childAspectRatio: 1,
-                  ),
                   itemBuilder: (context, index) {
-                    return RadialChart(
-                      title: dataProvider.dashboardData[index].title,
-                      percent: dataProvider.dashboardData[index].percentage,
-                      lineColor: dataProvider.dashboardData[index].linecolor,
+                    final service = dataProvider.dashboardDataList[index];
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: serviceCard(service),
                     );
                   },
                 );
               }),
-              // const SizedBox(height: 20),
-              // Container(
-              //   height: screenWidth / 2,
-              //   child: PieChart(
-              //     swapAnimationDuration: const Duration(milliseconds: 750),
-              //     swapAnimationCurve: Curves.easeInOutQuint,
-              //     PieChartData(
-              //       sections: list,
-              //     ),
-              //   ),
-              // ),
-              // const Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     Text(
-              //       'System Status',
-              //       style: TextStyle(
-              //         color: Colors.brown,
-              //         fontSize: 20,
-              //         fontWeight: FontWeight.bold,
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              // const SizedBox(height: 20), // Add some space before the row
-              // const Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     IconTextRow(
-              //       iconData: Icons.rectangle_rounded,
-              //       iconColor: Colors.red,
-              //       text: 'Memory',
-              //     ),
-              //     SizedBox(width: 15),
-              //     IconTextRow(
-              //       iconData: Icons.rectangle_rounded,
-              //       iconColor: Colors.blueAccent,
-              //       text: 'CPU',
-              //     ),
-              //     SizedBox(width: 15),
-              //     IconTextRow(
-              //       iconData: Icons.rectangle_rounded,
-              //       iconColor: Colors.teal,
-              //       text: 'Storage',
-              //     ),
-              //   ],
-              // ),
               const SizedBox(height: 40),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
-                    children: [
-                      Image.asset(
-                        Assets.images.visa.path,
-                        height: 100,
-                      ),
-                      Container(
-                        height: 30,
-                        width: 40,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.black, width: 2),
-                            color: Colors.blue),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Image.asset(
-                        Assets.images.mastercard.path,
-                        height: 100,
-                      ),
-                      Container(
-                        height: 30,
-                        width: 40,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.black, width: 2),
-                            color: Colors.orange),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-              commonTable(),
-              const SizedBox(height: 20),
-              // commonTable(headereTwo, rowsTwo),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget serviceCard(service) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              service.serviceName,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                RadialChart(
+                  title: "CPU",
+                  subtitle:
+                      "${(service.cpuPercentage * 100).toStringAsFixed(2)}%",
+                  percent: service.cpuPercentage,
+                  lineColor:
+                      service.cpuPercentage < 0.5 ? Colors.green : Colors.red,
+                ),
+                RadialChart(
+                  title: "Memory",
+                  subtitle: service.memmoryStatus,
+                  percent: service.memmoryPercentage,
+                  lineColor: service.memmoryPercentage < 0.5
+                      ? Colors.green
+                      : Colors.red,
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
     );
   }
 
@@ -264,47 +224,39 @@ class _SwitchMonitoringState extends State<SwitchMonitoring>
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Consumer<DataMonitoringProvider>(
           builder: (context, dataProvider, child) {
-        return Table(
-          columnWidths: const {
-            0: FlexColumnWidth(4),
-            1: FlexColumnWidth(4),
-            2: FlexColumnWidth(4),
-            3: FlexColumnWidth(4),
-            4: FlexColumnWidth(2),
-          },
-          border: TableBorder.all(color: Colors.grey),
-          children: [
-            // First Row (Headers)
-            TableRow(
-              decoration: const BoxDecoration(color: Colors.black),
-              children: dataProvider.headers
-                  .map((header) => _buildTableCell(header,
-                      fontWeight: FontWeight.bold, color: Colors.white))
-                  .toList(),
-            ),
-            // Data Rows
-            // TableRow(
-            //   children: [
-            //     _buildTableCell("Visa"),
-            //     _buildTableCell(dataProvider.todayData[0]["visaApprovedCount"]),
-            //     _buildTableCell(dataProvider.todayData[0]["visaDeclinedCount"]),
-            //     _buildTableCell("1"),
-            //     _buildTableCell("1"),
-            //   ],
-            // )
-            ...dataProvider.uiData.map((data) {
-              return TableRow(
-                children: [
-                  _buildTableCell(data.schemeName),
-                  _buildTableCell(data.approved),
-                  _buildTableCell(data.declined),
-                  _buildTableCell(data.reversal),
-                  _buildTableCell(data.percentage)
-                ],
-              );
-            }).toList(),
-          ],
-        );
+        return TransactionSummaryWidget(txn: dataProvider.todayData);
+        // return Table(
+        //   columnWidths: const {
+        //     0: FlexColumnWidth(4),
+        //     1: FlexColumnWidth(4),
+        //     2: FlexColumnWidth(4),
+        //     3: FlexColumnWidth(4),
+        //     4: FlexColumnWidth(2),
+        //   },
+        //   border: TableBorder.all(color: Colors.grey),
+        //   children: [
+        //     // First Row (Headers)
+        //     TableRow(
+        //       decoration: const BoxDecoration(color: Colors.black),
+        //       children: dataProvider.headers
+        //           .map((header) => _buildTableCell(header,
+        //               fontWeight: FontWeight.bold, color: Colors.white))
+        //           .toList(),
+        //     ),
+
+        //     ...dataProvider.uiData.map((data) {
+        //       return TableRow(
+        //         children: [
+        //           _buildTableCell(data.schemeName),
+        //           _buildTableCell(data.approved),
+        //           _buildTableCell(data.declined),
+        //           _buildTableCell(data.reversal),
+        //           _buildTableCell(data.percentage)
+        //         ],
+        //       );
+        //     }).toList(),
+        //   ],
+        // );
       }),
     );
   }

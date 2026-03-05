@@ -38,8 +38,7 @@ class MonitoringService {
   Future refreshToken() async {
     Connection connection = Connection();
     String token = boxStorage.getToken();
-    var url =
-        '${EndPoints.baseSwitchMonitoring}${EndPoints.refreshtoken}$token';
+    var url = '${EndPoints.baseRefreshToken}${EndPoints.refreshtoken}$token';
 
     var response = await connection.get(
       url,
