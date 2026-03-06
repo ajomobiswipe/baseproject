@@ -124,13 +124,20 @@ class _SwitchMonitoringState extends State<SwitchMonitoring>
       case 0:
         return systemStatus();
       case 1:
-        return OnboardingDashBoard(
-          merchantOnboardData: dataMonitoringProvider.merchantOnboardData,
+        return Consumer<DataMonitoringProvider>(
+          builder: (context, dataProvider, child) {
+            return OnboardingDashBoard(
+              merchantOnboardData: dataProvider.merchantOnboardData,
+            );
+          },
         );
       case 2:
-        return TransactionDashBoard(
-          transactionDashBoardData:
-              dataMonitoringProvider.transactionDashBoardData,
+        return Consumer<DataMonitoringProvider>(
+          builder: (context, dataProvider, child) {
+            return TransactionDashBoard(
+              transactionDashBoardData: dataProvider.transactionDashBoardData,
+            );
+          },
         );
     }
   }
@@ -150,6 +157,7 @@ class _SwitchMonitoringState extends State<SwitchMonitoring>
               const SizedBox(height: 40),
               Consumer<DataMonitoringProvider>(
                   builder: (context, dataProvider, child) {
+                print('inside list view builder');
                 return ListView.builder(
                   itemCount: dataProvider.dashboardDataList.length,
                   padding: const EdgeInsets.all(16.0),
@@ -225,53 +233,9 @@ class _SwitchMonitoringState extends State<SwitchMonitoring>
       child: Consumer<DataMonitoringProvider>(
           builder: (context, dataProvider, child) {
         return TransactionSummaryWidget(txn: dataProvider.todayData);
-        // return Table(
-        //   columnWidths: const {
-        //     0: FlexColumnWidth(4),
-        //     1: FlexColumnWidth(4),
-        //     2: FlexColumnWidth(4),
-        //     3: FlexColumnWidth(4),
-        //     4: FlexColumnWidth(2),
-        //   },
-        //   border: TableBorder.all(color: Colors.grey),
-        //   children: [
-        //     // First Row (Headers)
-        //     TableRow(
-        //       decoration: const BoxDecoration(color: Colors.black),
-        //       children: dataProvider.headers
-        //           .map((header) => _buildTableCell(header,
-        //               fontWeight: FontWeight.bold, color: Colors.white))
-        //           .toList(),
-        //     ),
-
-        //     ...dataProvider.uiData.map((data) {
-        //       return TableRow(
-        //         children: [
-        //           _buildTableCell(data.schemeName),
-        //           _buildTableCell(data.approved),
-        //           _buildTableCell(data.declined),
-        //           _buildTableCell(data.reversal),
-        //           _buildTableCell(data.percentage)
-        //         ],
-        //       );
-        //     }).toList(),
-        //   ],
-        // );
       }),
     );
   }
-
-  Widget _buildTableCell(dynamic text,
-          {fontWeight = FontWeight.normal, Color? color}) =>
-      TableCell(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            text.toString(),
-            style: TextStyle(fontWeight: fontWeight, color: color),
-          ),
-        ),
-      );
 
   PieChartSectionData PiChrItem({double? value, Color? color}) {
     return PieChartSectionData(

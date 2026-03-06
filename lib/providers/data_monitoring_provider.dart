@@ -28,10 +28,11 @@ class DataMonitoringProvider with ChangeNotifier {
   dynamic merchantOnboardData;
   dynamic transactionDashBoardData;
   List<dynamic> dashBoardData = [];
+  String lastUpdatedTime = "";
   final Map<String, dynamic> stayusReq = {
     "fromDate": DateFormat("dd-MM-yyyy").format(DateTime.now()),
     "toDate": DateFormat("dd-MM-yyyy").format(DateTime.now()),
-    "acquirerId": "ADIBOMA0001",
+    "acquirerId": "GDEAOMA0101",
     "merchantId": null,
     "rrn": "",
     "authCode": null,
@@ -60,50 +61,23 @@ class DataMonitoringProvider with ChangeNotifier {
   ];
 
   Future<void> getDashboardData() async {
-    final int month = DateTime.now().month;
-    try {
-      final response = await monitoringService.getDashboardData(stayusReq);
-      final Map<String, dynamic> data = json.decode(response.body);
+    // try {
+    final response = await monitoringService.getDashboardData(stayusReq);
+    final Map<String, dynamic> data = json.decode(response.body);
 
-      todayData = data['data'][0]['txnInfo'][0];
-      dashBoardData = data['data'][0]['applicationStatus'];
-      // print(dashBoardData!["serviceName"]);
-      print(todayData);
-      print(dashBoardData);
+    if (data['data'] != null && data['data'].isNotEmpty) {
+      final dashboard = data['data'][0];
 
-      setDefaultValues();
-    } catch (error) {
-      print("Error fetching data: $error");
+      if (dashboard['txnInfo'] != null && dashboard['txnInfo'].isNotEmpty) {
+        todayData = dashboard['txnInfo'][0];
+      } else {
+        todayData = null;
+      }
+
+      dashBoardData = dashboard['applicationStatus'];
     }
-  }
-
-  Future<void> getOnboardingDashboardData() async {
-    try {
-      final response = await monitoringService
-          .getOnboardingDashboardData(onboardingDashboardReq);
-      final Map<String, dynamic> data = json.decode(response.body);
-
-      merchantOnboardData = data['data'][0];
-    } catch (error) {
-      print("Error fetching data: $error");
-    }
-  }
-
-  Future<void> getTransactionDashboardData() async {
-    try {
-      final response = await monitoringService
-          .getTransactionDashboardData(transactionDashboardreq);
-      final Map<String, dynamic> data = json.decode(response.body);
-      transactionDashBoardData = data['data'][0];
-      print(data['data'][0]);
-    } catch (error) {
-      print("Error fetching data: $error");
-    }
-  }
-
-  void setDefaultValues() {
-    if (todayData == null) return;
-    dashboardDataList = [];
+    dashboardDataList.clear();
+    notifyListeners();
 
     for (var service in dashBoardData) {
       String serviceName = service["serviceName"] ?? "Unknown Service";
@@ -117,9 +91,15 @@ class DataMonitoringProvider with ChangeNotifier {
       List<String> memoryParts = memoryString.split('/');
 
       double usedMemory = parseMemory(memoryParts[0].trim());
-      double totalMemory = parseMemory(memoryParts[1].trim());
+      double totalMemory = 0;
+
+      if (memoryParts.length > 1) {
+        totalMemory = parseMemory(memoryParts[1].trim());
+      }
+
       double memoryPercentage =
           totalMemory > 0 ? usedMemory / totalMemory : 0.0;
+      print(dashboardDataList.length);
       dashboardDataList.add(DashBoardModel(
           serviceName: serviceName,
           cpuPercentage: cpuPercentage / 100,
@@ -127,25 +107,43 @@ class DataMonitoringProvider with ChangeNotifier {
           memmoryPercentage: memoryPercentage,
           memmoryStatus: memoryString));
     }
-
-    uiData = [
-      MonitoringTableModel(
-        schemeName: "Visa",
-        approved: todayData!["visaSaleAprCnt"] ?? 0,
-        declined: todayData!["totNonAprVisaCnt"] ?? 0,
-        reversal: todayData!["visaRefundAprCnt"] ?? 0,
-        percentage: (todayData!["visaApprovedCount"] ?? 0).toDouble(),
-      ),
-      MonitoringTableModel(
-        schemeName: "Master",
-        approved: todayData!["mcCrSaleAprCnt"] ?? 0,
-        declined: todayData!["mcrdDeclinedCount"] ?? 0,
-        reversal: todayData!["mcrdReversalCount"] ?? 0,
-        percentage: (todayData!["mcrdApprovedCount"] ?? 0).toDouble(),
-      ),
-    ];
-
+    lastUpdatedTime =
+        "${DateFormat("dd-MM-yyyy:").format(DateTime.now())} ${DateFormat("HH:mm:ss").format(DateTime.now())}";
+    print("outside loop ${dashboardDataList.length}");
     notifyListeners();
+    // } catch (error) {
+    //   print("Error fetching data: $error");
+    // }
+  }
+
+  Future<void> getOnboardingDashboardData() async {
+    try {
+      final response = await monitoringService
+          .getOnboardingDashboardData(onboardingDashboardReq);
+      final Map<String, dynamic> data = json.decode(response.body);
+
+      merchantOnboardData = data['data'][0];
+      notifyListeners();
+    } catch (error) {
+      print("Error fetching data: $error");
+    }
+  }
+
+  Future<void> getTransactionDashboardData() async {
+    try {
+      final response = await monitoringService
+          .getTransactionDashboardData(transactionDashboardreq);
+      final Map<String, dynamic> data = json.decode(response.body);
+      transactionDashBoardData = data['data'][0];
+      print(data['data'][0]);
+      notifyListeners();
+    } catch (error) {
+      print("Error fetching data: $error");
+    }
+  }
+
+  void setDefaultValues() {
+    //if (todayData == null) return;
   }
 
   double parseMemory(String value) {

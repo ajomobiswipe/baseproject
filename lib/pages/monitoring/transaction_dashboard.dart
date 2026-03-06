@@ -9,6 +9,9 @@ class TransactionDashBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (transactionDashBoardData == null) {
+      return const Center(child: Text("No Data Available"));
+    }
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ListView(

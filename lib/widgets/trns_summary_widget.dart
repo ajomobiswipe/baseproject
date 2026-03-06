@@ -1,5 +1,8 @@
 import 'package:baseproject/gen/assets.gen.dart';
+import 'package:baseproject/providers/data_monitoring_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class TransactionSummaryWidget extends StatelessWidget {
   final Map<String, dynamic>? txn;
@@ -11,9 +14,9 @@ class TransactionSummaryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (txn == null) {
-      return _noDataWidget();
-    }
+    // if (txn == null) {
+    //   return _noDataWidget();
+    // }
 
     int visaSale = txn?["visaSaleAprCnt"] ?? 0;
     double visaSaleAmt = (txn?["visaSaleAprAmt"] ?? 0).toDouble();
@@ -53,6 +56,16 @@ class TransactionSummaryWidget extends StatelessWidget {
             "Transaction Summary",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
+          Consumer<DataMonitoringProvider>(
+              builder: (context, dataProvider, child) {
+            return Text(
+              "Last Update: ${dataProvider.lastUpdatedTime}",
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade600),
+            );
+          }),
           const SizedBox(height: 16),
           Row(
             children: [
